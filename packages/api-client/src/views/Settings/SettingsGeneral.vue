@@ -16,15 +16,15 @@ import { type ThemeId, themeLabels } from '@scalar/themes'
 const { activeWorkspace, workspaceMutators } = useWorkspace()
 
 const toggleScalarProxy = () => {
-  console.log('toggle!', activeWorkspace.value.proxyUrl)
-  if (activeWorkspace.value.proxyUrl)
+  if (activeWorkspace.value.proxyUrl) {
     workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', '')
-  else
+  } else {
     workspaceMutators.edit(
       activeWorkspace.value.uid,
       'proxyUrl',
       'https://proxy.scalar.com',
     )
+  }
 }
 
 const themeIds: ThemeId[] = [

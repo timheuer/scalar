@@ -3,7 +3,6 @@ import { useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
   ScalarDropdown,
-  ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
@@ -30,41 +29,21 @@ const createNewEnvironment = () =>
 const envs = computed(() => {
   return Object.values(environments).filter((env) => env.uid !== 'default')
 })
-
-const options = {
-  'grey': 'bg-grey',
-  'red': 'bg-red',
-  'yellow': 'bg-yellow',
-  'green': 'bg-green',
-  'orange': 'bg-orange',
-  'blue': 'bg-blue',
-  'text-c-2': 'bg-c-2',
-  'purple': 'bg-purple',
-  'pink': 'bg-pink',
-}
 </script>
 <template>
   <ScalarDropdown>
     <ScalarButton
-      class="font-normal h-full justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
+      class="font-normal h-full justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-3 text-c-2 w-fit"
       fullWidth
       variant="ghost">
       <h2 class="font-medium m-0 text-sm flex gap-1.5 items-center">
-        <div
-          class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full"
-          :class="
-            activeEnvironment
-              ? options[activeEnvironment.color as keyof typeof options]
-              : ''
-          "></div>
-        {{ activeEnvironment?.name ?? 'No environment' }}
+        {{ activeEnvironment?.name ?? 'No Environment' }}
         <ScalarIcon
           class="size-2.5"
           icon="ChevronDown"
           thickness="3.5" />
       </h2>
     </ScalarButton>
-
     <!-- Workspace list -->
     <template #items>
       <ScalarDropdownItem
@@ -82,9 +61,8 @@ const options = {
             icon="Checkmark"
             thickness="3.5" />
         </div>
-        No environment
+        No Environment
       </ScalarDropdownItem>
-      <ScalarDropdownDivider />
       <ScalarDropdownItem
         v-for="env in envs"
         :key="env.uid"
@@ -104,7 +82,6 @@ const options = {
         </div>
         {{ env.name }}
       </ScalarDropdownItem>
-      <ScalarDropdownDivider />
 
       <!-- Add new environment -->
       <ScalarDropdownItem

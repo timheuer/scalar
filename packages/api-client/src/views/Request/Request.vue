@@ -8,14 +8,18 @@ import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
-import { executeRequestBus, requestStatusBus, sendRequest } from '@/libs'
+import {
+  cancelRequestBus,
+  executeRequestBus,
+  requestStatusBus,
+  sendRequest,
+} from '@/libs'
 import { commandPaletteBus } from '@/libs/event-busses/command-palette'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
-import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
@@ -47,6 +51,7 @@ const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { toast } = useToasts()
 const searchModalState = useModal()
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
+const requestAbortController = ref<AbortController>()
 
 /** Watch to see if activeRequest changes and ensure we open any folders */
 watch(
@@ -102,6 +107,7 @@ const executeRequest = async () => {
 
   requestStatusBus.emit('start')
   try {
+    requestAbortController.value = new AbortController()
     const { request, response, error } = await sendRequest(
       activeRequest.value,
       activeExample.value,
@@ -109,6 +115,7 @@ const executeRequest = async () => {
       activeSecuritySchemes.value,
       activeWorkspace.value?.proxyUrl,
       cookies,
+      requestAbortController.value?.signal,
     )
 
     if (request && response) {
@@ -122,7 +129,8 @@ const executeRequest = async () => {
       ])
       requestStatusBus.emit('stop')
     } else {
-      toast(error?.message ?? 'Send Request Failed', 'error')
+      if (error?.code !== 'ERR_CANCELED')
+        toast(error?.message ?? 'Send Request Failed', 'error')
       requestStatusBus.emit('abort')
     }
   } catch (error) {
@@ -131,7 +139,12 @@ const executeRequest = async () => {
     requestStatusBus.emit('abort')
   }
 }
-onMounted(() => executeRequestBus.on(executeRequest))
+/** Cancel a live request */
+const cancelRequest = async () => requestAbortController.value?.abort()
+onMounted(() => {
+  executeRequestBus.on(executeRequest)
+  cancelRequestBus.on(cancelRequest)
+})
 
 /**
  * Need to manually remove listener on unmount due to vueuse memory leak
@@ -228,12 +241,6 @@ useEventListener(document, 'keydown', (event) => {
     commandPaletteBus.emit()
   }
 })
-
-const getBackgroundColor = () => {
-  if (!activeRequest.value) return ''
-  const { method } = activeRequest.value
-  return REQUEST_METHODS[method as RequestMethod].backgroundColor
-}
 
 /** Ensure only collections are allowed at the top level OR resources dropped INTO (offset 2) */
 const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {

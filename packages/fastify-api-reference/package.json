@@ -42,10 +42,10 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
+    "@scalar/api-reference-types": "workspace:*",
     "fastify-plugin": "^4.5.1"
   },
   "devDependencies": {
-    "@scalar/api-reference": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
     "fastify": "^4.26.2",
     "magic-string": "^0.30.8",

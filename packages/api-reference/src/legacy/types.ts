@@ -1,5 +1,4 @@
 import type { BaseParameter } from '@scalar/oas-utils'
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 
 export type Header = BaseParameter
 

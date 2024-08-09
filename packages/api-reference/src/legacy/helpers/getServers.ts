@@ -1,3 +1,7 @@
+/**
+ * TODO: This does a lot of normalization of the provided servers.
+ * We want to move this code over to @scalar/api-client and just tap into the api client workspace eventually, though.
+ */
 import type { Spec } from '@scalar/oas-utils'
 import { concatenateUrlAndPath, findVariables } from '@scalar/oas-utils/helpers'
 

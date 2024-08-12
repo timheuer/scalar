@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.24.75
+
+### Patch Changes
+
+- ee0c360: fix: add more contrasting background to unopened tags
+- Updated dependencies [7ec175b]
+  - @scalar/oas-utils@0.2.31
+  - @scalar/api-client@2.0.50
+
 ## 1.24.74
 
 ### Patch Changes

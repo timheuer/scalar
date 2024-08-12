@@ -375,7 +375,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       name: 'Global Environment',
       color: 'blue',
       raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
-      parsed: [],
+      parsed: [{ key: 'exampleKey', value: 'exampleValue' }],
       isDefault: true,
     }),
   })
@@ -384,6 +384,21 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     reactive({}),
     persistData && LS_KEYS.ENVIRONMENT,
   )
+
+  // Ensure the default environment is added to the mutators
+  if (!environments.default) {
+    environmentMutators.add(environments.default)
+  }
+
+  const editEnvironment = <K extends keyof Environment>(
+    uid: string,
+    key: K,
+    value: Environment[K],
+  ) => {
+    if (environments[uid]) {
+      environments[uid][key] = value
+    }
+  }
 
   /** prevent deletion of the default environment */
   const deleteEnvironment = (uid: string) => {
@@ -1011,6 +1026,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     },
     environmentMutators: {
       ...environmentMutators,
+      edit: editEnvironment,
       delete: deleteEnvironment,
     },
     folderMutators: {
